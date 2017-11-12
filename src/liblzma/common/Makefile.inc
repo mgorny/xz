@@ -73,6 +73,8 @@ liblzma_la_SOURCES += \
 	common/index_decoder.c \
 	common/index_decoder.h \
 	common/index_hash.c \
+	common/lzip_decoder.c \
+	common/lzip_decoder.h \
 	common/stream_buffer_decoder.c \
 	common/stream_decoder.c \
 	common/stream_decoder.h \
