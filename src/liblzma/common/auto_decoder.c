@@ -12,6 +12,7 @@
 
 #include "stream_decoder.h"
 #include "alone_decoder.h"
+#include "lzip_decoder.h"
 
 
 typedef struct {
@@ -48,12 +49,16 @@ auto_decode(void *coder_ptr, const lzma_allocator *allocator,
 
 		// Detect the file format. For now this is simple, since if
 		// it doesn't start with 0xFD (the first magic byte of the
-		// new format), it has to be LZMA_Alone, or something that
-		// we don't support at all.
+		// new format) or 'L' (the first magic byte of the lzip format),
+		// it has to be LZMA_Alone, or something that we don't support
+		// at all.
 		if (in[*in_pos] == 0xFD) {
 			return_if_error(lzma_stream_decoder_init(
 					&coder->next, allocator,
 					coder->memlimit, coder->flags));
+		} else if (in[*in_pos] == 0x4C) {
+			return_if_error(lzma_lzip_decoder_init(&coder->next,
+					allocator, coder->memlimit, coder->flags));
 		} else {
 			return_if_error(lzma_alone_decoder_init(&coder->next,
 					allocator, coder->memlimit, true));
