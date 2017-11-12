@@ -62,6 +62,7 @@ global:
 	lzma_index_stream_size;
 	lzma_index_total_size;
 	lzma_index_uncompressed_size;
+	lzma_lzip_decoder;
 	lzma_lzma_preset;
 	lzma_memlimit_get;
 	lzma_memlimit_set;

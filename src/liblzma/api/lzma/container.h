@@ -587,6 +587,29 @@ extern LZMA_API(lzma_ret) lzma_alone_decoder(
 
 
 /**
+ * \brief       Initialize .lz Stream decoder (foreign file format)
+ *
+ * \param       strm        Pointer to properly prepared lzma_stream
+ * \param       memlimit    Memory usage limit as bytes. Use UINT64_MAX
+ *                          to effectively disable the limiter. liblzma
+ *                          5.2.3 and earlier don't allow 0 here and return
+ *                          LZMA_PROG_ERROR; later versions treat 0 as if 1
+ *                          had been specified.
+ * \param       flags       Bitwise-or of zero or more of the decoder flags:
+ *                          LZMA_TELL_NO_CHECK, LZMA_TELL_UNSUPPORTED_CHECK,
+ *                          LZMA_TELL_ANY_CHECK, LZMA_CONCATENATED
+ *
+ * \return      - LZMA_OK: Initialization was successful.
+ *              - LZMA_MEM_ERROR: Cannot allocate memory.
+ *              - LZMA_OPTIONS_ERROR: Unsupported flags
+ *              - LZMA_PROG_ERROR
+ */
+extern LZMA_API(lzma_ret) lzma_lzip_decoder(
+		lzma_stream *strm, uint64_t memlimit, uint32_t flags)
+		lzma_nothrow lzma_attr_warn_unused_result;
+
+
+/**
  * \brief       Single-call .xz Stream decoder
  *
  * \param       memlimit    Pointer to how much memory the decoder is allowed
