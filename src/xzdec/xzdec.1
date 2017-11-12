@@ -15,6 +15,10 @@ xzdec, lzmadec \- Small .xz and .lzma decompressors
 .B lzmadec
 .RI [ option... ]
 .RI [ file... ]
+.br
+.B lzdec
+.RI [ option... ]
+.RI [ file... ]
 .SH DESCRIPTION
 .B xzdec
 is a liblzma-based decompression-only tool for
@@ -38,6 +42,16 @@ except that
 .B lzmadec
 supports
 .B .lzma
+files instead of
+.B .xz
+files.
+.B lzdec
+is identical to
+.B xzdec
+except that
+.B lzdec
+supports
+.B .lz
 files instead of
 .B .xz
 files.
@@ -118,20 +132,23 @@ has, thus the exit status 2 is not used by
 Use
 .BR xz (1)
 instead of
-.B xzdec
-or
+.B xzdec,
 .B lzmadec
+or
+.B lzdec
 for normal everyday use.
-.B xzdec
-or
+.B xzdec,
 .B lzmadec
+and
+.B lzdec
 are meant only for situations where it is important to have
 a smaller decompressor than the full-featured
 .BR xz (1).
 .PP
-.B xzdec
-and
+.B xzdec,
 .B lzmadec
+and
+.B lzdec
 are not really that small.
 The size can be reduced further by dropping
 features from liblzma at compile time,
