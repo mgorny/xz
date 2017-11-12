@@ -30,6 +30,8 @@
 
 #ifdef LZMADEC
 #	define TOOL_FORMAT "lzma"
+#elif defined(LZDEC)
+#	define TOOL_FORMAT "lz"
 #else
 #	define TOOL_FORMAT "xz"
 #endif
@@ -149,6 +151,8 @@ uncompress(lzma_stream *strm, FILE *file, const char *filename)
 	// Initialize the decoder
 #ifdef LZMADEC
 	ret = lzma_alone_decoder(strm, UINT64_MAX);
+#elif defined(LZDEC)
+	ret = lzma_lzip_decoder(strm, UINT64_MAX, LZMA_CONCATENATED);
 #else
 	ret = lzma_stream_decoder(strm, UINT64_MAX, LZMA_CONCATENATED);
 #endif

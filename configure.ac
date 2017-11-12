@@ -440,6 +440,12 @@ AC_ARG_ENABLE([lzmadec], [AS_HELP_STRING([--disable-lzmadec],
 test "x$enable_decoder_lzma1" = xno && enable_lzmadec=no
 AM_CONDITIONAL([COND_LZMADEC], [test x$enable_lzmadec != xno])
 
+AC_ARG_ENABLE([lzdec], [AS_HELP_STRING([--disable-lzdec],
+		[do not build lzdec])],
+	[], [enable_lzdec=yes])
+test "x$enable_decoder_lzma1" = xno && enable_lzdec=no
+AM_CONDITIONAL([COND_LZDEC], [test x$enable_lzdec != xno])
+
 AC_ARG_ENABLE([lzmainfo], [AS_HELP_STRING([--disable-lzmainfo],
 		[do not build lzmainfo
 		(it exists primarily for LZMA Utils compatibility)])],
