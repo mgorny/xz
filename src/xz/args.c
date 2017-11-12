@@ -397,6 +397,7 @@ parse_real(args_info *args, int argc, char **argv)
 				{ "alone",  FORMAT_LZMA },
 				// { "gzip",   FORMAT_GZIP },
 				// { "gz",     FORMAT_GZIP },
+				{ "lzip",  FORMAT_LZIP },
 				{ "raw",    FORMAT_RAW },
 			};
 
@@ -625,6 +626,9 @@ args_parse(args_info *args, int argc, char **argv)
 			opt_mode = MODE_DECOMPRESS;
 		} else if (strstr(name, "lzma") != NULL) {
 			opt_format = FORMAT_LZMA;
+		} else if (strstr(name, "unlzip") != NULL) {
+			opt_format = FORMAT_LZIP;
+			opt_mode = MODE_DECOMPRESS;
 		}
 	}
 
@@ -658,6 +662,9 @@ args_parse(args_info *args, int argc, char **argv)
 		opt_keep_original = true;
 		opt_stdout = true;
 	}
+
+	if (opt_mode == MODE_COMPRESS && opt_format == FORMAT_LZIP)
+		message_fatal(_("Compression of lzip files is not supported"));
 
 	// When compressing, if no --format flag was used, or it
 	// was --format=auto, we compress to the .xz format.
