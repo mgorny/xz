@@ -13,6 +13,7 @@
 
 #include "lzip_decoder.h"
 #include "lzma_decoder.h"
+#include "check.h"
 
 
 #define LZIP_MEMBER_HEADER_SIZE 2
@@ -70,6 +71,9 @@ typedef struct {
 
 	uint64_t member_size;
 	uint64_t uncompressed_size;
+
+	/// Check of the uncompressed data
+	uint32_t crc32;
 } lzma_lzip_coder;
 
 
@@ -203,6 +207,7 @@ lzip_decode(void *coder_ptr, const lzma_allocator *allocator,
 					? LZMA_DATA_ERROR : ret;
 
 		coder->first_stream = false;
+		coder->crc32 = 0;
 
 		// Calculate the memory usage limit.
 		coder->memusage = lzma_lzma_decoder_memusage(&coder->options)
@@ -248,9 +253,15 @@ lzip_decode(void *coder_ptr, const lzma_allocator *allocator,
 				in, in_pos, in_size, out, out_pos, out_size,
 				action);
 
+		const size_t out_used = *out_pos - out_pos_before;
+
 		// Count the consumed and output data.
 		coder->member_size += *in_pos - in_pos_before;
-		coder->uncompressed_size += *out_pos - out_pos_before;
+		coder->uncompressed_size += out_used;
+
+		if (!coder->ignore_check)
+			coder->crc32 = lzma_crc32(out + out_pos_before, out_used,
+					coder->crc32);
 
 		if (ret != LZMA_STREAM_END)
 			return ret;
@@ -286,7 +297,8 @@ lzip_decode(void *coder_ptr, const lzma_allocator *allocator,
 		if (coder->member_size != footer_flags.member_size)
 			return LZMA_DATA_ERROR;
 
-		// TODO: verify CRC32
+		if (!coder->ignore_check && coder->crc32 != footer_flags.crc32)
+			return LZMA_DATA_ERROR;
 
 		if (!coder->concatenated)
 			return LZMA_STREAM_END;
