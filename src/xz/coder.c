@@ -136,6 +136,8 @@ memlimit_too_small(uint64_t memory_usage)
 extern void
 coder_set_compression_settings(void)
 {
+	assert(opt_format != FORMAT_LZIP);
+
 	// The default check type is CRC64, but fallback to CRC32
 	// if CRC64 isn't supported by the copy of liblzma we are
 	// using. CRC32 is always supported.
@@ -377,6 +379,16 @@ is_format_xz(void)
 }
 
 
+/// Return true if the data in in_buf seems to be in the .lz format.
+static bool
+is_format_lzip(void)
+{
+	static const uint8_t magic[4] = { 0x4C, 0x5A, 0x49, 0x50 };
+	return strm.avail_in >= sizeof(magic)
+			&& memcmp(in_buf.u8, magic, sizeof(magic)) == 0;
+}
+
+
 /// Return true if the data in in_buf seems to be in the .lzma format.
 static bool
 is_format_lzma(void)
@@ -459,6 +471,11 @@ coder_init(file_pair *pair)
 			ret = lzma_alone_encoder(&strm, filters[0].options);
 			break;
 
+		case FORMAT_LZIP:
+			// args.c should disallow this
+			assert(0);
+			break;
+
 		case FORMAT_RAW:
 			ret = lzma_raw_encoder(&strm, filters);
 			break;
@@ -486,6 +503,8 @@ coder_init(file_pair *pair)
 		case FORMAT_AUTO:
 			if (is_format_xz())
 				init_format = FORMAT_XZ;
+			else if (is_format_lzip())
+				init_format = FORMAT_LZIP;
 			else if (is_format_lzma())
 				init_format = FORMAT_LZMA;
 			break;
@@ -498,6 +517,11 @@ coder_init(file_pair *pair)
 		case FORMAT_LZMA:
 			if (is_format_lzma())
 				init_format = FORMAT_LZMA;
+			break;
+
+		case FORMAT_LZIP:
+			if (is_format_lzip())
+				init_format = FORMAT_LZIP;
 			break;
 
 		case FORMAT_RAW:
@@ -529,6 +553,12 @@ coder_init(file_pair *pair)
 			ret = lzma_alone_decoder(&strm,
 					hardware_memlimit_get(
 						MODE_DECOMPRESS));
+			break;
+
+		case FORMAT_LZIP:
+			ret = lzma_lzip_decoder(&strm,
+					hardware_memlimit_get(
+						MODE_DECOMPRESS), flags);
 			break;
 
 		case FORMAT_RAW:

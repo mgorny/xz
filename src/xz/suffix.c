@@ -120,6 +120,7 @@ uncompressed_name(const char *src_name, const size_t src_len)
 		{ ".lzm",   "" },
 #endif
 		{ ".tlz",   ".tar" },
+		{ ".lz",    "" },
 		// { ".gz",    "" },
 		// { ".tgz",   ".tar" },
 	};
@@ -207,6 +208,9 @@ compressed_name(const char *src_name, size_t src_len)
 			".lzm",
 #endif
 			".tlz",
+			NULL
+		}, {
+			".lz",
 			NULL
 /*
 		}, {
