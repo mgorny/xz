@@ -11,8 +11,8 @@
 ///   - Byte order conversions to/from native: convXXYe(num)
 ///   - Aligned reads: readXXYe(ptr)
 ///   - Aligned writes: writeXXYe(ptr, num)
-///   - Unaligned reads (16/32-bit only): unaligned_readXXYe(ptr)
-///   - Unaligned writes (16/32-bit only): unaligned_writeXXYe(ptr, num)
+///   - Unaligned reads (16/32/64-bit only): unaligned_readXXYe(ptr)
+///   - Unaligned writes (16/32/64-bit only): unaligned_writeXXYe(ptr, num)
 ///
 /// Since they can macros, the arguments should have no side effects since
 /// they may be evaluated more than once.
@@ -263,20 +263,19 @@ write64ne(uint8_t *buf, uint64_t num)
 // Unaligned reads and writes //
 ////////////////////////////////
 
-// NOTE: TUKLIB_FAST_UNALIGNED_ACCESS indicates only support for 16-bit and
-// 32-bit unaligned integer loads and stores. It's possible that 64-bit
-// unaligned access doesn't work or is slower than byte-by-byte access.
-// Since unaligned 64-bit is probably not needed as often as 16-bit or
-// 32-bit, we simply don't support 64-bit unaligned access for now.
 #ifdef TUKLIB_FAST_UNALIGNED_ACCESS
 #	define unaligned_read16be read16be
 #	define unaligned_read16le read16le
 #	define unaligned_read32be read32be
 #	define unaligned_read32le read32le
+#	define unaligned_read64be read64be
+#	define unaligned_read64le read64le
 #	define unaligned_write16be write16be
 #	define unaligned_write16le write16le
 #	define unaligned_write32be write32be
 #	define unaligned_write32le write32le
+#	define unaligned_write64be write64be
+#	define unaligned_write64le write64le
 
 #else
 
@@ -318,6 +317,36 @@ unaligned_read32le(const uint8_t *buf)
 }
 
 
+static inline uint64_t
+unaligned_read64be(const uint8_t *buf)
+{
+	uint64_t num = (uint64_t)buf[0] << 56;
+	num |= (uint64_t)buf[1] << 48;
+	num |= (uint64_t)buf[2] << 40;
+	num |= (uint64_t)buf[3] << 32;
+	num |= (uint64_t)buf[4] << 24;
+	num |= (uint64_t)buf[5] << 16;
+	num |= (uint64_t)buf[6] << 8;
+	num |= (uint64_t)buf[7];
+	return num;
+}
+
+
+static inline uint64_t
+unaligned_read64le(const uint8_t *buf)
+{
+	uint64_t num = (uint64_t)buf[0];
+	num |= (uint64_t)buf[1] << 8;
+	num |= (uint64_t)buf[2] << 16;
+	num |= (uint64_t)buf[3] << 24;
+	num |= (uint64_t)buf[4] << 32;
+	num |= (uint64_t)buf[5] << 40;
+	num |= (uint64_t)buf[6] << 48;
+	num |= (uint64_t)buf[7] << 56;
+	return num;
+}
+
+
 static inline void
 unaligned_write16be(uint8_t *buf, uint16_t num)
 {
@@ -354,6 +383,36 @@ unaligned_write32le(uint8_t *buf, uint32_t num)
 	buf[1] = (uint8_t)(num >> 8);
 	buf[2] = (uint8_t)(num >> 16);
 	buf[3] = (uint8_t)(num >> 24);
+	return;
+}
+
+
+static inline void
+unaligned_write64be(uint8_t *buf, uint64_t num)
+{
+	buf[0] = (uint8_t)(num >> 56);
+	buf[1] = (uint8_t)(num >> 48);
+	buf[2] = (uint8_t)(num >> 40);
+	buf[3] = (uint8_t)(num >> 32);
+	buf[4] = (uint8_t)(num >> 24);
+	buf[5] = (uint8_t)(num >> 16);
+	buf[6] = (uint8_t)(num >> 8);
+	buf[7] = (uint8_t)num;
+	return;
+}
+
+
+static inline void
+unaligned_write64le(uint8_t *buf, uint64_t num)
+{
+	buf[0] = (uint8_t)num;
+	buf[1] = (uint8_t)(num >> 8);
+	buf[2] = (uint8_t)(num >> 16);
+	buf[3] = (uint8_t)(num >> 24);
+	buf[4] = (uint8_t)(num >> 32);
+	buf[5] = (uint8_t)(num >> 40);
+	buf[6] = (uint8_t)(num >> 48);
+	buf[7] = (uint8_t)(num >> 56);
 	return;
 }
 
