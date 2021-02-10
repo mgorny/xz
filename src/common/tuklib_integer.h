@@ -17,7 +17,7 @@
 ///   - Byte swapping: bswapXX(num)
 ///   - Byte order conversions to/from native (byteswaps if Y isn't
 ///     the native endianness): convXXYe(num)
-///   - Unaligned reads (16/32-bit only): readXXYe(ptr)
+///   - Unaligned reads: readXXYe(ptr)
 ///   - Unaligned writes (16/32-bit only): writeXXYe(ptr, num)
 ///   - Aligned reads: aligned_readXXYe(ptr)
 ///   - Aligned writes: aligned_writeXXYe(ptr, num)
@@ -338,6 +338,46 @@ read32le(const uint8_t *buf)
 	num |= (uint32_t)buf[1] << 8;
 	num |= (uint32_t)buf[2] << 16;
 	num |= (uint32_t)buf[3] << 24;
+	return num;
+#endif
+}
+
+
+static inline uint64_t
+read64be(const uint8_t *buf)
+{
+#if defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+	uint64_t num = read64ne(buf);
+	return conv64be(num);
+#else
+	uint64_t num = (uint64_t)buf[0] << 56;
+	num |= (uint64_t)buf[1] << 48;
+	num |= (uint64_t)buf[2] << 40;
+	num |= (uint64_t)buf[3] << 32;
+	num |= (uint64_t)buf[4] << 24;
+	num |= (uint64_t)buf[5] << 16;
+	num |= (uint64_t)buf[6] << 8;
+	num |= (uint64_t)buf[7];
+	return num;
+#endif
+}
+
+
+static inline uint64_t
+read64le(const uint8_t *buf)
+{
+#if !defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+	uint64_t num = read64ne(buf);
+	return conv64le(num);
+#else
+	uint64_t num = (uint64_t)buf[0];
+	num |= (uint64_t)buf[1] << 8;
+	num |= (uint64_t)buf[2] << 16;
+	num |= (uint64_t)buf[3] << 24;
+	num |= (uint64_t)buf[4] << 32;
+	num |= (uint64_t)buf[5] << 40;
+	num |= (uint64_t)buf[6] << 48;
+	num |= (uint64_t)buf[7] << 56;
 	return num;
 #endif
 }
